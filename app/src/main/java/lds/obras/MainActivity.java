@@ -6,6 +6,9 @@ import android.os.Bundle;
 import android.support.v7.widget.AppCompatSpinner;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -19,6 +22,15 @@ public class MainActivity extends AppCompatActivity {
         Button continuar = (Button) findViewById(R.id.continuar);
         elegirUsuario = (AppCompatSpinner) findViewById(R.id.spinnerUsuario);
         elegirObra = (AppCompatSpinner) findViewById(R.id.spinnerObra);
+
+        ObrasServicio.getInstance().getObrasServicio().obras()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(respuesta -> {
+                    System.out.println(respuesta);
+                }, throwable -> {
+                    runOnUiThread(() -> Toast.makeText(getApplicationContext(), "Error: " + throwable.getMessage(), Toast.LENGTH_LONG).show());
+
+                });
 
         continuar.setOnClickListener(new View.OnClickListener() {
             @Override
