@@ -11,15 +11,12 @@ import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-/**
- * Created by jlionti on 14/7/2017.
- */
 
 public class ObrasServicio {
 
     private static final int timeout = 30;
 
-    private static final String URL = "http://192.168.1.33:31544/api/Servicio/";
+    private static final String URL = "http://192.168.1.1:31544/api/Servicio/";
     private static ObrasServicio sObrasServicio;
     private final ObrasApi obrasApi;
 

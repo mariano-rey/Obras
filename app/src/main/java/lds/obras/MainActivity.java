@@ -19,42 +19,40 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Button continuar = (Button) findViewById(R.id.continuar);
+        MostrarCapataces();
+        MostrarObras();
 
+        Button continuar = (Button) findViewById(R.id.continuar);
+        continuar.setOnClickListener(v -> ActivityTrabajadores());
+    }
+
+    private void MostrarCapataces() {
         AppCompatSpinner spinnerCapataces = (AppCompatSpinner) findViewById(R.id.spinnerCapataces);
         ArrayList<String> listaCapataces = new ArrayList<>();
-        ArrayAdapter adapterCapataces = new ArrayAdapter<>(this, R.layout.item_spinner_capataces, listaCapataces);
+        ArrayAdapter<String> adapterCapataces = new ArrayAdapter<>(this, R.layout.item_spinner_capataces, listaCapataces);
         spinnerCapataces.setAdapter(adapterCapataces);
 
         ObrasServicio.getInstance().getObrasServicio().capataces()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(System.out::println, throwable -> runOnUiThread(() -> Toast.makeText(getApplicationContext(), "Error: " + throwable.getMessage(), Toast.LENGTH_LONG).show()));
+    }
 
+
+    private void MostrarObras() {
         AppCompatSpinner spinnerObras = (AppCompatSpinner) findViewById(R.id.spinnerObras);
         ArrayList<String> listaObras = new ArrayList<>();
-        ArrayAdapter adapterObras = new ArrayAdapter<>(this, R.layout.item_spinner_obras, listaObras);
+        ArrayAdapter<String> adapterObras = new ArrayAdapter<>(this, R.layout.item_spinner_obras, listaObras);
         spinnerObras.setAdapter(adapterObras);
 
         ObrasServicio.getInstance().getObrasServicio().obras()
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(System.out::println, throwable -> runOnUiThread(() -> Toast.makeText(getApplicationContext(), "Error: " + throwable.getMessage(), Toast.LENGTH_LONG).show()));
-
-//        try {
-//            JSONArray jsonArray = new JSONArray("Obras");
-//            JSONObject jsonObject = jsonArray.getJSONObject(0);
-//            String nombre = jsonObject.getString("nombre");
-//            String direccion = jsonObject.getString("direccion");
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-
-
-        continuar.setOnClickListener(v -> ActivityTrabajadores());
+                .subscribe(item -> adapterObras.addAll(String.valueOf(item)), throwable -> runOnUiThread(() -> Toast.makeText(getApplicationContext(), "Error: " + throwable.getMessage(), Toast.LENGTH_LONG).show()));
+        adapterObras.notifyDataSetChanged();
     }
 
     private void ActivityTrabajadores() {
         Intent intent = new Intent(this, Trabajadores.class);
-        intent.putExtra("Usuario", "INSERTAR VARIABLE USUARIO ACA!!");
+        intent.putExtra("Capataz", "INSERTAR VARIABLE CAPATAZ ACA!!");
         startActivity(intent);
     }
 }
