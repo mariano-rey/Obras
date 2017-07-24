@@ -16,7 +16,8 @@ public class ObrasServicio {
 
     private static final int timeout = 30;
 
-    private static final String URL = "http://192.168.1.1:31544/api/Servicio/";
+    private static final String URL1 = "http://192.168.1.1:31544/api/Servicio/";
+    private static final String URL = "http://192.168.116.28:55262/api/Servicio/";
     private static ObrasServicio sObrasServicio;
     private final ObrasApi obrasApi;
 
