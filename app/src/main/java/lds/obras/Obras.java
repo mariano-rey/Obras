@@ -1,9 +1,5 @@
 package lds.obras;
 
-/**
- * Created by jlionti on 24/7/2017.
- */
-
 public class Obras {
 
     private int idObra;
@@ -12,8 +8,8 @@ public class Obras {
 
     public Obras(int idObra, String nombre, String direccion) {
         this.idObra = idObra;
-        Nombre = nombre;
-        Direccion = direccion;
+        this.Nombre = nombre;
+        this.Direccion = direccion;
     }
 
     public int getIdObra() {
@@ -28,7 +24,6 @@ public class Obras {
         return Direccion;
     }
 
-    @Override
     public String toString() {
         return getNombre() + " (" + getDireccion() + ")";
     }

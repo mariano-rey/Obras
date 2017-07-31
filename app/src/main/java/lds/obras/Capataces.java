@@ -1,9 +1,5 @@
 package lds.obras;
 
-/**
- * Created by jlionti on 24/7/2017.
- */
-
 public class Capataces {
 
     private int idCapataz;

@@ -46,13 +46,9 @@ public class MainActivity extends AppCompatActivity {
                                 List<Capataces> capataces = new Gson().fromJson(String.valueOf(jsonElements), new TypeToken<List<Capataces>>() {
                                 }.getType());
                                 adapterCapataces.addAll(capataces);
+                                adapterCapataces.notifyDataSetChanged();
                             }
-
-
-                            adapterCapataces.notifyDataSetChanged();
                         },
-
-
                         throwable -> runOnUiThread(() -> Toast.makeText(getApplicationContext(), "Error: " + throwable.getMessage(), Toast.LENGTH_LONG).show()));
     }
 
@@ -71,8 +67,6 @@ public class MainActivity extends AppCompatActivity {
                                 List<Obras> obras = new Gson().fromJson(String.valueOf(jsonElements), new TypeToken<List<Obras>>() {
                                 }.getType());
                                 adapterObras.addAll(obras);
-
-
                                 adapterObras.notifyDataSetChanged();
                             }
                         },
@@ -83,11 +77,13 @@ public class MainActivity extends AppCompatActivity {
     private void ActivityTrabajadores() {
 
         int obraId = ((Obras) spinnerObras.getSelectedItem()).getIdObra();
-        int capatazId = spinnerCapataces.getId();
+        int capatazId = ((Capataces) spinnerCapataces.getSelectedItem()).getIdCapataz();
+        String nombreCapataz = (((Capataces) spinnerCapataces.getSelectedItem()).getNombre());
 
-        Intent intent = new Intent(this, Trabajadores.class);
-        intent.putExtra("Capataz", capatazId);
+        Intent intent = new Intent(this, TrabajadoresActivity.class);
+        intent.putExtra("CapatazId", capatazId);
         intent.putExtra("Obra", obraId);
+        intent.putExtra("NombreCapataz", nombreCapataz);
         startActivity(intent);
     }
 }
