@@ -14,9 +14,9 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ObrasServicio {
 
-    private static final int timeout = 30;
+    private static final int timeout = 60;
 
-    private static final String URL = "http://192.168.1.47:55265/api/Servicio/";
+    private static final String URL = "http://192.168.1.47:51412/api/Service/";
     //    private static final String URL = "http://192.168.116.28:55262/api/Servicio/";
     private static ObrasServicio sObrasServicio;
     private final ObrasApi obrasApi;

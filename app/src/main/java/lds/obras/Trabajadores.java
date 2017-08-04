@@ -2,13 +2,13 @@ package lds.obras;
 
 public class Trabajadores {
 
-    private int idTrabajador, dni;
+    private int idTrabajador, Dni;
     private String Nombre;
 
     public Trabajadores(int idTrabajador, String nombre, int dni) {
         this.idTrabajador = idTrabajador;
         this.Nombre = nombre;
-        this.dni = dni;
+        this.Dni = dni;
     }
 
     public int getIdTrabajador() {
@@ -16,10 +16,18 @@ public class Trabajadores {
     }
 
     public int getDni() {
-        return dni;
+        return Dni;
     }
 
     public String getNombre() {
         return Nombre;
+    }
+
+    public String toString() {
+        return "Trabajadores{" +
+                "idTrabajador=" + idTrabajador +
+                ", Dni=" + Dni +
+                ", Nombre='" + Nombre + '\'' +
+                '}';
     }
 }

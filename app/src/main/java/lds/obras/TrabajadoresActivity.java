@@ -1,6 +1,5 @@
 package lds.obras;
 
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
@@ -71,19 +70,6 @@ public class TrabajadoresActivity extends AppCompatActivity {
         rvTrabajadores.addItemDecoration(dividerItemDecoration);
         rvTrabajadores.setHasFixedSize(true);
 
-        ObrasServicio.getInstance().getObrasServicio().trabajadores()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(item -> {
-                            if (item.get("Exitoso").getAsBoolean()) {
-                                JsonArray jsonElements = item.getAsJsonArray("Trabajadores");
-                                List<Trabajadores> trabajadores = new Gson().fromJson(String.valueOf(jsonElements), new TypeToken<List<Trabajadores>>() {
-                                }.getType());
-                                listaTrabajadores.addAll(trabajadores);
-                            }
-                        },
-
-                        throwable -> runOnUiThread(() -> Toast.makeText(getApplicationContext(), "Error: " + throwable.getMessage(), Toast.LENGTH_LONG).show()));
-
 
         TrabajadoresAdapter adapter = new TrabajadoresAdapter(this, listaTrabajadores);
         rvTrabajadores.setAdapter(adapter);
@@ -92,7 +78,7 @@ public class TrabajadoresActivity extends AppCompatActivity {
     private class TrabajadoresAdapter extends RecyclerView.Adapter<TrabajadoresViewHolder> {
         private List<Trabajadores> listaTrabajadores;
 
-        TrabajadoresAdapter(TrabajadoresActivity trabajadores, List<Trabajadores> listaTrabajadores) {
+        TrabajadoresAdapter(TrabajadoresActivity trabajadoresActivity, List<Trabajadores> listaTrabajadores) {
             this.listaTrabajadores = listaTrabajadores;
         }
 
@@ -104,12 +90,25 @@ public class TrabajadoresActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(TrabajadoresViewHolder holder, int position) {
+            ObrasServicio.getInstance().getObrasServicio().trabajadores()
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(item -> {
+                                if (item.get("Exitoso").getAsBoolean()) {
+                                    JsonArray jsonArray = item.getAsJsonArray("Trabajadores");
+                                    List<Trabajadores> trabajadores = new Gson().fromJson(String.valueOf(jsonArray), new TypeToken<List<Trabajadores>>() {
+                                    }.getType());
+                                    listaTrabajadores.addAll(trabajadores);
+                                    notifyDataSetChanged();
+                                }
+                            },
+                            throwable -> runOnUiThread(() -> Toast.makeText(getApplicationContext(), "Error: " + throwable.getMessage(), Toast.LENGTH_LONG).show()));
+
             holder.nombre.setText(listaTrabajadores.get(position).getNombre());
             holder.dni.setText(listaTrabajadores.get(position).getDni());
 
-            if (holder.estaPresente.isChecked()) {
-                int trabajadorPresente = listaTrabajadores.get(position).getIdTrabajador();
-            }
+//            if (holder.estaPresente.isChecked()) {
+//                int trabajadorPresente = listaTrabajadores.get(position).getIdTrabajador();
+//            }
         }
 
         @Override
@@ -126,7 +125,7 @@ public class TrabajadoresActivity extends AppCompatActivity {
             super(itemView);
 
             nombre = (TextView) findViewById(R.id.nombre);
-            nombre.setTypeface(null, Typeface.BOLD);
+//            nombre.setTypeface(null, Typeface.BOLD);
             dni = (TextView) findViewById(R.id.dni);
             estaPresente = (SwitchCompat) findViewById(R.id.estaPresente);
         }

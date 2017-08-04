@@ -18,7 +18,6 @@ public class Capataces {
         return Nombre;
     }
 
-    @Override
     public String toString() {
         return Nombre;
     }
