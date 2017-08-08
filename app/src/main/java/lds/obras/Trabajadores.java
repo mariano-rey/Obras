@@ -2,12 +2,14 @@ package lds.obras;
 
 public class Trabajadores {
 
-    private int idTrabajador, Dni;
+    private int idTrabajador;
     private String Nombre;
+    private int Dni;
+//    private boolean seleccionado;
 
-    public Trabajadores(int idTrabajador, String nombre, int dni) {
+    public Trabajadores(int idTrabajador, String Nombre, int dni) {
         this.idTrabajador = idTrabajador;
-        this.Nombre = nombre;
+        this.Nombre = Nombre;
         this.Dni = dni;
     }
 
@@ -23,11 +25,15 @@ public class Trabajadores {
         return Nombre;
     }
 
+//    public boolean seleccionado() {
+//        return seleccionado;
+//    }
+//
+//    public void setSeleccionado(boolean seleccionado) {
+//        this.seleccionado = seleccionado;
+//    }
+
     public String toString() {
-        return "Trabajadores{" +
-                "idTrabajador=" + idTrabajador +
-                ", Dni=" + Dni +
-                ", Nombre='" + Nombre + '\'' +
-                '}';
+        return getNombre() + getDni();
     }
 }

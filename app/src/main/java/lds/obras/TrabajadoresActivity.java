@@ -18,6 +18,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +26,10 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 
 public class TrabajadoresActivity extends AppCompatActivity {
 
-    private String capatazId, obraId, nombreCapataz;
+    private String nombreCapataz;
+    private int capatazId, obraId;
+    private RecyclerView rvTrabajadores;
+    private TrabajadoresAdapter adapter;
     private List<Trabajadores> listaTrabajadores = new ArrayList<>();
 
     @Override
@@ -36,33 +40,16 @@ public class TrabajadoresActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        capatazId = getIntent().getExtras().getString("CapatazId");
-        obraId = getIntent().getExtras().getString("Obra");
+        capatazId = getIntent().getExtras().getInt("CapatazId");
+        obraId = getIntent().getExtras().getInt("Obra");
         nombreCapataz = getIntent().getExtras().getString("NombreCapataz");
         setTitle(nombreCapataz);
 
-        MostrarTrabajadores();
-
+        BuscarTrabajadores();
     }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.finalizar:
-                GuardarTrabajadores();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
-    private void GuardarTrabajadores() {
-
-    }
-
 
     private void MostrarTrabajadores() {
-        RecyclerView rvTrabajadores = (RecyclerView) findViewById(R.id.rvTrabajadores);
+        rvTrabajadores = (RecyclerView) findViewById(R.id.rvTrabajadores);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         rvTrabajadores.setLayoutManager(linearLayoutManager);
@@ -70,10 +57,48 @@ public class TrabajadoresActivity extends AppCompatActivity {
         rvTrabajadores.addItemDecoration(dividerItemDecoration);
         rvTrabajadores.setHasFixedSize(true);
 
-
-        TrabajadoresAdapter adapter = new TrabajadoresAdapter(this, listaTrabajadores);
+        adapter = new TrabajadoresAdapter(this, listaTrabajadores);
         rvTrabajadores.setAdapter(adapter);
     }
+
+    private void BuscarTrabajadores() {
+        ObrasServicio.getInstance().getObrasServicio().trabajadores()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(item -> {
+                            if (item.get("Exitoso").getAsBoolean()) {
+                                JsonArray jsonArray = item.getAsJsonArray("Trabajadores");
+                                Type listType = new TypeToken<List<Trabajadores>>() {
+                                }.getType();
+                                listaTrabajadores.clear();
+                                listaTrabajadores = new Gson().fromJson(String.valueOf(jsonArray), listType);
+                                adapter.notifyDataSetChanged();
+                            }
+                        },
+                        throwable -> runOnUiThread(() -> Toast.makeText(getApplicationContext(), "Error: " + throwable.getMessage(), Toast.LENGTH_LONG).show()));
+
+        MostrarTrabajadores();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.finalizar:
+//                GuardarTrabajadores();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+//    private int GuardarTrabajadores() {
+//        List<Trabajadores> trabajadores = ((TrabajadoresAdapter) rvTrabajadores.getAdapter()).getDataSet();
+//        for (int x = 0; x < trabajadores.size(); x++) {
+//            Trabajadores esta = trabajadores.get(x);
+//            if (esta.seleccionado())
+//                return esta.getIdTrabajador();
+//        }
+//        return -1;
+//    }
 
     private class TrabajadoresAdapter extends RecyclerView.Adapter<TrabajadoresViewHolder> {
         private List<Trabajadores> listaTrabajadores;
@@ -81,6 +106,10 @@ public class TrabajadoresActivity extends AppCompatActivity {
         TrabajadoresAdapter(TrabajadoresActivity trabajadoresActivity, List<Trabajadores> listaTrabajadores) {
             this.listaTrabajadores = listaTrabajadores;
         }
+
+//        public List<Trabajadores> getDataSet(){
+//            return listaTrabajadores;
+//        }
 
         @Override
         public TrabajadoresViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
@@ -90,21 +119,11 @@ public class TrabajadoresActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(TrabajadoresViewHolder holder, int position) {
-            ObrasServicio.getInstance().getObrasServicio().trabajadores()
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(item -> {
-                                if (item.get("Exitoso").getAsBoolean()) {
-                                    JsonArray jsonArray = item.getAsJsonArray("Trabajadores");
-                                    List<Trabajadores> trabajadores = new Gson().fromJson(String.valueOf(jsonArray), new TypeToken<List<Trabajadores>>() {
-                                    }.getType());
-                                    listaTrabajadores.addAll(trabajadores);
-                                    notifyDataSetChanged();
-                                }
-                            },
-                            throwable -> runOnUiThread(() -> Toast.makeText(getApplicationContext(), "Error: " + throwable.getMessage(), Toast.LENGTH_LONG).show()));
+            Trabajadores trabajador = listaTrabajadores.get(position);
 
-            holder.nombre.setText(listaTrabajadores.get(position).getNombre());
-            holder.dni.setText(listaTrabajadores.get(position).getDni());
+            holder.nombre.setText(trabajador.getNombre());
+            holder.dni.setText(trabajador.getDni());
+//            holder.nombre.setVisibility(trabajador.getNombre() == null ? View.GONE : View.VISIBLE);
 
 //            if (holder.estaPresente.isChecked()) {
 //                int trabajadorPresente = listaTrabajadores.get(position).getIdTrabajador();
