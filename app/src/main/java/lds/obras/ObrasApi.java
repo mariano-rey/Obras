@@ -15,5 +15,4 @@ public interface ObrasApi {
 
     @POST("Trabajadores")
     Observable<JsonObject> trabajadores();
-
 }

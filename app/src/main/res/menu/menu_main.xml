@@ -5,7 +5,6 @@
     <item
         android:id="@+id/finalizar"
         android:icon="@drawable/ic_done"
-        android:title="Agregar Partido"
+        android:title=""
         app:showAsAction="ifRoom" />
-
 </menu>

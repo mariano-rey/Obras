@@ -1,5 +1,7 @@
 package lds.obras;
 
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
@@ -8,15 +10,18 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.reflect.TypeToken;
+import com.loopj.android.http.RequestParams;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -26,26 +31,41 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 
 public class TrabajadoresActivity extends AppCompatActivity {
 
-    private String nombreCapataz;
     private int capatazId, obraId;
     private RecyclerView rvTrabajadores;
     private TrabajadoresAdapter adapter;
     private List<Trabajadores> listaTrabajadores = new ArrayList<>();
+    private ProgressBar cargandoTrabajadores;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trabajadores);
+        getWindow().getDecorView().setBackgroundColor(getResources().getColor(R.color.celeste));
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        cargandoTrabajadores = (ProgressBar) findViewById(R.id.progressBar);
+
         capatazId = getIntent().getExtras().getInt("CapatazId");
         obraId = getIntent().getExtras().getInt("Obra");
-        nombreCapataz = getIntent().getExtras().getString("NombreCapataz");
-        setTitle(nombreCapataz);
+        String nombreCapataz = getIntent().getExtras().getString("NombreCapataz");
+        if (nombreCapataz != null) {
+            setTitle(nombreCapataz);
+            toolbar.setTitleTextColor(Color.WHITE);
+        }
 
+        MostrarTrabajadores();
+        CargandoTrabajadores();
         BuscarTrabajadores();
+    }
+
+    private void CargandoTrabajadores() {
+        if (adapter.getItemCount() == 0)
+            cargandoTrabajadores.setVisibility(View.VISIBLE);
+        else
+            cargandoTrabajadores.setVisibility(View.GONE);
     }
 
     private void MostrarTrabajadores() {
@@ -67,38 +87,60 @@ public class TrabajadoresActivity extends AppCompatActivity {
                 .subscribe(item -> {
                             if (item.get("Exitoso").getAsBoolean()) {
                                 JsonArray jsonArray = item.getAsJsonArray("Trabajadores");
-                                Type listType = new TypeToken<List<Trabajadores>>() {
+                                Type listType = new TypeToken<ArrayList<Trabajadores>>() {
                                 }.getType();
                                 listaTrabajadores.clear();
-                                listaTrabajadores = new Gson().fromJson(String.valueOf(jsonArray), listType);
+                                listaTrabajadores.addAll(new Gson().fromJson(jsonArray, listType));
                                 adapter.notifyDataSetChanged();
+                                CargandoTrabajadores();
                             }
                         },
-                        throwable -> runOnUiThread(() -> Toast.makeText(getApplicationContext(), "Error: " + throwable.getMessage(), Toast.LENGTH_LONG).show()));
+                        throwable -> runOnUiThread(() -> {
+                            Toast.makeText(getApplicationContext(), "Error: " + throwable.getMessage(), Toast.LENGTH_LONG).show();
+                            BuscarTrabajadores();
+                        }));
+    }
 
-        MostrarTrabajadores();
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.finalizar:
-//                GuardarTrabajadores();
+                GuardarTrabajadores();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-//    private int GuardarTrabajadores() {
-//        List<Trabajadores> trabajadores = ((TrabajadoresAdapter) rvTrabajadores.getAdapter()).getDataSet();
-//        for (int x = 0; x < trabajadores.size(); x++) {
-//            Trabajadores esta = trabajadores.get(x);
-//            if (esta.seleccionado())
-//                return esta.getIdTrabajador();
-//        }
-//        return -1;
-//    }
+    private void GuardarTrabajadores() {
+        List<Trabajadores> trabajadores = ((TrabajadoresAdapter) rvTrabajadores.getAdapter()).getDataSet();
+        List<Integer> trabajadoresPresentes = new ArrayList<>();
+        for (int x = 0; x < trabajadores.size(); x++) {
+            Trabajadores esta = trabajadores.get(x);
+            if (esta.seleccionado()) {
+                int idTrabajador = esta.getIdTrabajador();
+                trabajadoresPresentes.add(idTrabajador);
+            }
+        }
+
+//        ObrasServicio.getInstance().getObrasServicio().trabajadores()
+//                .subscribe(item -> {
+//
+//                        }
+//                );
+
+        RequestParams params = new RequestParams();
+        params.put("idObra", obraId);
+        params.put("idCapataz", capatazId);
+        params.put("trabajadores", trabajadoresPresentes);
+    }
 
     private class TrabajadoresAdapter extends RecyclerView.Adapter<TrabajadoresViewHolder> {
         private List<Trabajadores> listaTrabajadores;
@@ -107,9 +149,9 @@ public class TrabajadoresActivity extends AppCompatActivity {
             this.listaTrabajadores = listaTrabajadores;
         }
 
-//        public List<Trabajadores> getDataSet(){
-//            return listaTrabajadores;
-//        }
+        List<Trabajadores> getDataSet() {
+            return listaTrabajadores;
+        }
 
         @Override
         public TrabajadoresViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
@@ -123,11 +165,6 @@ public class TrabajadoresActivity extends AppCompatActivity {
 
             holder.nombre.setText(trabajador.getNombre());
             holder.dni.setText(trabajador.getDni());
-//            holder.nombre.setVisibility(trabajador.getNombre() == null ? View.GONE : View.VISIBLE);
-
-//            if (holder.estaPresente.isChecked()) {
-//                int trabajadorPresente = listaTrabajadores.get(position).getIdTrabajador();
-//            }
         }
 
         @Override
@@ -143,10 +180,14 @@ public class TrabajadoresActivity extends AppCompatActivity {
         TrabajadoresViewHolder(View itemView) {
             super(itemView);
 
-            nombre = (TextView) findViewById(R.id.nombre);
-//            nombre.setTypeface(null, Typeface.BOLD);
-            dni = (TextView) findViewById(R.id.dni);
-            estaPresente = (SwitchCompat) findViewById(R.id.estaPresente);
+//            itemView.setBackgroundColor(getResources().getColor(R.color.colorPrimaryDark));
+
+            nombre = (TextView) itemView.findViewById(R.id.nombre);
+            nombre.setTextColor(Color.WHITE);
+            nombre.setTypeface(null, Typeface.BOLD);
+            dni = (TextView) itemView.findViewById(R.id.dni);
+            dni.setTextColor(Color.WHITE);
+            estaPresente = (SwitchCompat) itemView.findViewById(R.id.estaPresente);
         }
     }
 }

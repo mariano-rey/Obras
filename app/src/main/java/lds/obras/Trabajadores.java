@@ -5,7 +5,7 @@ public class Trabajadores {
     private int idTrabajador;
     private String Nombre;
     private int Dni;
-//    private boolean seleccionado;
+    private boolean seleccionado;
 
     public Trabajadores(int idTrabajador, String Nombre, int dni) {
         this.idTrabajador = idTrabajador;
@@ -17,23 +17,23 @@ public class Trabajadores {
         return idTrabajador;
     }
 
-    public int getDni() {
-        return Dni;
+    public String getDni() {
+        return "Dni: " + Dni;
     }
 
     public String getNombre() {
         return Nombre;
     }
 
-//    public boolean seleccionado() {
-//        return seleccionado;
-//    }
-//
-//    public void setSeleccionado(boolean seleccionado) {
-//        this.seleccionado = seleccionado;
-//    }
+    public boolean seleccionado() {
+        return seleccionado;
+    }
+
+    public void setSeleccionado(boolean seleccionado) {
+        this.seleccionado = seleccionado;
+    }
 
     public String toString() {
-        return getNombre() + getDni();
+        return getNombre();
     }
 }
